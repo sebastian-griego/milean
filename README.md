@@ -1,5 +1,23 @@
 This repo contains a minimal pipeline to probe and steer a Lean tactic generator (ByT5) on the binary behavior `intro` vs `apply` using teacher-forced scoring, layerwise probes, and a simple activation addition intervention.
 
+Writeup
+
+- See `WRITEUP.md` for a short report with key results and figures.
+
+Quick Reproduce (CPU)
+
+```bash
+bash scripts/quick_reproduce.sh
+```
+
+Expect a few hours on CPU. The script builds a balanced 5k dataset, computes directions, runs the control sweep and token-localized sweep on test500, and runs a lightweight in-encoder RMS-scaled sweep on test200.
+
+Key Figures
+
+![Control sweep, layer 12](data/plots_test500/steer_shift_layer12.png)
+![Token localized, layer 12](data/plots_tokenloc_test500/steer_shift_layer12_final.png)
+![In-encoder RMS scaled, layer 12](data/plots_inencoder_rms_test200_goalcontext/steer_shift_layer12_block.png)
+
 Quickstart
 
 1) Create a venv and install deps:
