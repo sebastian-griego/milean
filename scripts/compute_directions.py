@@ -39,6 +39,7 @@ def parse_args():
     parser.add_argument("--max-length", type=int, default=512)
     parser.add_argument("--layers", default="11,12")
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--apply-rms-norm", action="store_true")
     return parser.parse_args()
 
 
@@ -75,6 +76,8 @@ def main():
     model.eval()
 
     encoder = model.get_encoder()
+    rms_weight = encoder.final_layer_norm.weight.detach().cpu()
+    rms_eps = encoder.final_layer_norm.variance_epsilon
 
     # get layer ids from a warmup forward
     warm = tokenizer(data[0]["state"], return_tensors="pt", truncation=True, max_length=args.max_length)
@@ -133,6 +136,10 @@ def main():
 
             for layer in layer_ids:
                 h = hidden_states[layer]
+                if args.apply_rms_norm:
+                    var = h.pow(2).mean(dim=-1, keepdim=True)
+                    h = h * torch.rsqrt(var + rms_eps)
+                    h = h * rms_weight.view(1, 1, -1).to(h.device)
                 pooled = (h * mask).sum(dim=1) / denom
                 pooled = pooled.to(torch.float64)
 

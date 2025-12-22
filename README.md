@@ -94,6 +94,50 @@ python scripts/steer_sweep.py \
   --seed 42
 ```
 
+8) Token-localized steering (goal vs context):
+
+```bash
+python scripts/steer_sweep.py \
+  --test data/intro_apply_test.jsonl \
+  --directions data/directions/directions_layer11.pt data/directions/directions_layer12.pt \
+  --output data/steer_tokenloc_test.json \
+  --plot-dir data/plots_tokenloc \
+  --batch-size 32 \
+  --max-length 384 \
+  --alphas -0.25 -0.1 0 0.1 0.25 \
+  --mask-modes global,goal,context,goal_head \
+  --goal-head-tokens 64 \
+  --injection final \
+  --seed 42
+```
+
+9) In-encoder injection (scaled for RMS norm):
+
+```bash
+python scripts/compute_directions.py \
+  --train data/intro_apply_train.jsonl \
+  --output-dir data/directions_rms \
+  --layers 11,12 \
+  --max-length 384 \
+  --batch-size 16 \
+  --seed 42 \
+  --apply-rms-norm
+
+python scripts/steer_sweep.py \
+  --test data/intro_apply_test.jsonl \
+  --directions data/directions_rms/directions_layer11.pt data/directions_rms/directions_layer12.pt \
+  --output data/steer_inencoder_test.json \
+  --plot-dir data/plots_inencoder \
+  --batch-size 16 \
+  --max-length 384 \
+  --alphas -0.25 -0.1 0 0.1 0.25 \
+  --mask-modes global,goal,context \
+  --direction-names u \
+  --injection block \
+  --block-scale rms \
+  --seed 42
+```
+
 Notes
 
 - Default model is `kaiyuy/leandojo-lean4-tacgen-byt5-small`. Override with `--model`.
