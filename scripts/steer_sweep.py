@@ -49,8 +49,8 @@ def score_from_encoder(model, encoder_hidden, attention_mask, intro_ids, apply_i
     labels[bsz:, : apply_ids.numel()] = apply_ids
     labels = labels.contiguous()
 
-    enc2 = encoder_hidden.repeat_interleave(2, dim=0)
-    attn2 = attention_mask.repeat_interleave(2, dim=0)
+    enc2 = torch.cat([encoder_hidden, encoder_hidden], dim=0)
+    attn2 = torch.cat([attention_mask, attention_mask], dim=0)
 
     outputs = model(
         encoder_outputs=BaseModelOutput(last_hidden_state=enc2),
