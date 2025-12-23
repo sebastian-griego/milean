@@ -1,0 +1,178 @@
+{
+  "config": {
+    "test": "/home/jovyan/milean/data/intro_apply_test_200.jsonl",
+    "directions": [
+      "/home/jovyan/milean/data/directions/directions_layer11.pt",
+      "/home/jovyan/milean/data/directions/directions_layer12.pt"
+    ],
+    "alphas": [
+      -0.25,
+      -0.1,
+      0.0,
+      0.1,
+      0.25
+    ],
+    "max_length": 384,
+    "batch_size": 16,
+    "model": "kaiyuy/leandojo-lean4-tacgen-byt5-small",
+    "seed": 42,
+    "baseline_accuracy": 0.805,
+    "mask_modes": [
+      "global"
+    ],
+    "direction_names": [
+      "u"
+    ],
+    "goal_head_tokens": 64,
+    "injection": "block",
+    "block_override": null
+  },
+  "results": [
+    {
+      "layer": 11,
+      "direction": "u",
+      "mask": "global",
+      "alpha": -0.25,
+      "mean_shift": -0.000746273398399353,
+      "std_shift": 0.000585716084753799,
+      "accuracy": 0.805,
+      "flip_rate": 0.0,
+      "n": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 11,
+      "direction": "u",
+      "mask": "global",
+      "alpha": -0.1,
+      "mean_shift": -0.00029820263385772706,
+      "std_shift": 0.00023436500894454814,
+      "accuracy": 0.805,
+      "flip_rate": 0.0,
+      "n": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 11,
+      "direction": "u",
+      "mask": "global",
+      "alpha": 0.0,
+      "mean_shift": 0.0,
+      "std_shift": 0.0,
+      "accuracy": 0.805,
+      "flip_rate": 0.0,
+      "n": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 11,
+      "direction": "u",
+      "mask": "global",
+      "alpha": 0.1,
+      "mean_shift": 0.0002985018491744995,
+      "std_shift": 0.00023407523024026054,
+      "accuracy": 0.805,
+      "flip_rate": 0.0,
+      "n": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 11,
+      "direction": "u",
+      "mask": "global",
+      "alpha": 0.25,
+      "mean_shift": 0.0007460266351699829,
+      "std_shift": 0.0005851335911721577,
+      "accuracy": 0.805,
+      "flip_rate": 0.0,
+      "n": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 12,
+      "direction": "u",
+      "mask": "global",
+      "alpha": -0.25,
+      "mean_shift": -0.0012540739774703979,
+      "std_shift": 0.0009484116060628058,
+      "accuracy": 0.805,
+      "flip_rate": 0.0,
+      "n": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 12,
+      "direction": "u",
+      "mask": "global",
+      "alpha": -0.1,
+      "mean_shift": -0.0005018311738967895,
+      "std_shift": 0.0003795091828181809,
+      "accuracy": 0.805,
+      "flip_rate": 0.0,
+      "n": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 12,
+      "direction": "u",
+      "mask": "global",
+      "alpha": 0.0,
+      "mean_shift": 0.0,
+      "std_shift": 0.0,
+      "accuracy": 0.805,
+      "flip_rate": 0.0,
+      "n": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 12,
+      "direction": "u",
+      "mask": "global",
+      "alpha": 0.1,
+      "mean_shift": 0.0005016863346099853,
+      "std_shift": 0.00037882559559215286,
+      "accuracy": 0.805,
+      "flip_rate": 0.0,
+      "n": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 12,
+      "direction": "u",
+      "mask": "global",
+      "alpha": 0.25,
+      "mean_shift": 0.001254127025604248,
+      "std_shift": 0.0009473414644309856,
+      "accuracy": 0.805,
+      "flip_rate": 0.0,
+      "n": 200,
+      "injection": "block"
+    }
+  ],
+  "bootstrap": [
+    {
+      "layer": 11,
+      "direction": "u",
+      "mask": "global",
+      "slope": 0.002984600067138672,
+      "ci_low": 0.0026487520635128017,
+      "ci_high": 0.003297489821910858,
+      "alpha_pos": 0.25,
+      "alpha_neg": -0.25,
+      "reps": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 12,
+      "direction": "u",
+      "mask": "global",
+      "slope": 0.005016402006149292,
+      "ci_low": 0.004526363521814346,
+      "ci_high": 0.005448419541120529,
+      "alpha_pos": 0.25,
+      "alpha_neg": -0.25,
+      "reps": 200,
+      "injection": "block"
+    }
+  ]
+}

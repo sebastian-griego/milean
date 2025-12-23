@@ -1,0 +1,179 @@
+{
+  "config": {
+    "test": "/home/jovyan/milean/data/intro_apply_test_200.jsonl",
+    "directions": [
+      "/home/jovyan/milean/data/directions_rms/directions_layer11.pt",
+      "/home/jovyan/milean/data/directions_rms/directions_layer12.pt"
+    ],
+    "alphas": [
+      -0.25,
+      -0.1,
+      0.0,
+      0.1,
+      0.25
+    ],
+    "max_length": 384,
+    "batch_size": 16,
+    "model": "kaiyuy/leandojo-lean4-tacgen-byt5-small",
+    "seed": 42,
+    "baseline_accuracy": 0.805,
+    "mask_modes": [
+      "global"
+    ],
+    "direction_names": [
+      "u"
+    ],
+    "goal_head_tokens": 64,
+    "injection": "block",
+    "block_override": null,
+    "block_scale": "rms"
+  },
+  "results": [
+    {
+      "layer": 11,
+      "direction": "u",
+      "mask": "global",
+      "alpha": -0.25,
+      "mean_shift": -0.21211736917495727,
+      "std_shift": 0.1554008916066984,
+      "accuracy": 0.805,
+      "flip_rate": 0.01,
+      "n": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 11,
+      "direction": "u",
+      "mask": "global",
+      "alpha": -0.1,
+      "mean_shift": -0.0839463609457016,
+      "std_shift": 0.06140881256913636,
+      "accuracy": 0.805,
+      "flip_rate": 0.0,
+      "n": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 11,
+      "direction": "u",
+      "mask": "global",
+      "alpha": 0.0,
+      "mean_shift": 0.0,
+      "std_shift": 0.0,
+      "accuracy": 0.805,
+      "flip_rate": 0.0,
+      "n": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 11,
+      "direction": "u",
+      "mask": "global",
+      "alpha": 0.1,
+      "mean_shift": 0.08273099720478058,
+      "std_shift": 0.060315409277704575,
+      "accuracy": 0.815,
+      "flip_rate": 0.01,
+      "n": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 11,
+      "direction": "u",
+      "mask": "global",
+      "alpha": 0.25,
+      "mean_shift": 0.2045308268070221,
+      "std_shift": 0.14859204062487383,
+      "accuracy": 0.815,
+      "flip_rate": 0.01,
+      "n": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 12,
+      "direction": "u",
+      "mask": "global",
+      "alpha": -0.25,
+      "mean_shift": -0.20977575063705445,
+      "std_shift": 0.1666819358785086,
+      "accuracy": 0.805,
+      "flip_rate": 0.01,
+      "n": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 12,
+      "direction": "u",
+      "mask": "global",
+      "alpha": -0.1,
+      "mean_shift": -0.08297033131122589,
+      "std_shift": 0.06596764854312726,
+      "accuracy": 0.805,
+      "flip_rate": 0.0,
+      "n": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 12,
+      "direction": "u",
+      "mask": "global",
+      "alpha": 0.0,
+      "mean_shift": 0.0,
+      "std_shift": 0.0,
+      "accuracy": 0.805,
+      "flip_rate": 0.0,
+      "n": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 12,
+      "direction": "u",
+      "mask": "global",
+      "alpha": 0.1,
+      "mean_shift": 0.08169734477996826,
+      "std_shift": 0.06492309545660074,
+      "accuracy": 0.815,
+      "flip_rate": 0.01,
+      "n": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 12,
+      "direction": "u",
+      "mask": "global",
+      "alpha": 0.25,
+      "mean_shift": 0.20182833552360535,
+      "std_shift": 0.16017210159780315,
+      "accuracy": 0.815,
+      "flip_rate": 0.01,
+      "n": 200,
+      "injection": "block"
+    }
+  ],
+  "bootstrap": [
+    {
+      "layer": 11,
+      "direction": "u",
+      "mask": "global",
+      "slope": 0.8332963943481446,
+      "ci_low": 0.7487114836573601,
+      "ci_high": 0.9167752559483051,
+      "alpha_pos": 0.25,
+      "alpha_neg": -0.25,
+      "reps": 200,
+      "injection": "block"
+    },
+    {
+      "layer": 12,
+      "direction": "u",
+      "mask": "global",
+      "slope": 0.8232081747055053,
+      "ci_low": 0.7362516252398491,
+      "ci_high": 0.8996673247218132,
+      "alpha_pos": 0.25,
+      "alpha_neg": -0.25,
+      "reps": 200,
+      "injection": "block"
+    }
+  ]
+}

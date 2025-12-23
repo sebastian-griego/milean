@@ -1,0 +1,26 @@
+[
+  {
+    "alpha": -2.0,
+    "accuracy": 0.45,
+    "flip_rate": 0.43,
+    "mean_score_shift": -17.056526088714598,
+    "borderline_flip_rate": 0.4,
+    "direction": "u"
+  },
+  {
+    "alpha": 0.0,
+    "accuracy": 0.82,
+    "flip_rate": 0.0,
+    "mean_score_shift": 0.0,
+    "borderline_flip_rate": 0.0,
+    "direction": "u"
+  },
+  {
+    "alpha": 2.0,
+    "accuracy": 0.55,
+    "flip_rate": 0.57,
+    "mean_score_shift": 20.24120973587036,
+    "borderline_flip_rate": 0.6,
+    "direction": "u"
+  }
+]
