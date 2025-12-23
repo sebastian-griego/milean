@@ -12,6 +12,8 @@ bash scripts/quick_reproduce.sh
 
 Expect a few hours on CPU. The script builds a balanced 5k dataset, computes directions, runs the control sweep and token-localized sweep on test500, and runs a lightweight in-encoder RMS-scaled sweep on test200.
 
+Repro status: Last reproduced from scratch on commit `ac1395e` (working tree) with `scripts/quick_reproduce.sh`.
+
 Key Figures
 
 ![Control sweep, layer 12](data/plots_test500/steer_shift_layer12.png)
