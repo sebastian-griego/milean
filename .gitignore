@@ -2,7 +2,18 @@ node_modules/
 *.log
 .env
 __pycache__/
+*.py[cod]
 .DS_Store
 .ipynb_checkpoints/
 .venv/
 data/leandojo_benchmark_4/
+
+# Local experiment outputs and caches. Curated artifacts under data/ remain
+# tracked when intentionally committed with the writeup.
+outputs/
+runs/
+checkpoints/
+data/cache/
+data/raw/
+data/tmp/
+data/local/

@@ -1,3 +1,5 @@
+# milean
+
 This repo contains a minimal pipeline to probe and steer a Lean tactic generator (ByT5) on the binary behavior `intro` vs `apply` using teacher-forced scoring, layerwise probes, and a simple activation addition intervention.
 
 Writeup
@@ -13,6 +15,11 @@ bash scripts/quick_reproduce.sh
 Expect a few hours on CPU. The script builds a balanced 5k dataset, computes directions, runs the control sweep and token-localized sweep on test500, and runs a lightweight in-encoder RMS-scaled sweep on test200.
 
 Repro status: Last reproduced from scratch on commit `ac1395e` (working tree) with `scripts/quick_reproduce.sh`.
+
+Validation
+
+- CI runs a lightweight syntax check over `scripts/` without downloading model weights or datasets.
+- Full reproduction is intentionally manual because it downloads the ReProver benchmark and ByT5 model weights, then runs several CPU-heavy sweeps.
 
 Key Figures
 
@@ -163,3 +170,4 @@ Notes
 - Default model is `kaiyuy/leandojo-lean4-tacgen-byt5-small`. Override with `--model`.
 - If your dataset schema differs, `extract_intro_apply.py` accepts `--state-key` and `--tactic-key`.
 - ByT5 is byte-level; attention and token indices are byte-based.
+- Curated figures and compact result files under `data/` are tracked for the writeup. Large local downloads, caches, checkpoints, and scratch outputs should stay out of version control.
