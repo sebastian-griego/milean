@@ -18,8 +18,15 @@ Repro status: Last reproduced from scratch on commit `ac1395e` (working tree) wi
 
 Validation
 
-- CI runs a lightweight syntax check over `scripts/` without downloading model weights or datasets.
+- CI runs a lightweight syntax check over `scripts/`, unit tests for the audit helpers, and `python scripts/audit_results.py --check` against the committed result artifacts.
+- The artifact audit verifies baseline accuracy, near-alpha-zero slopes, control-sweep bounds, sample counts, and the referenced PNG figures without downloading model weights or datasets.
 - Full reproduction is intentionally manual because it downloads the ReProver benchmark and ByT5 model weights, then runs several CPU-heavy sweeps.
+
+Audit the committed artifacts locally:
+
+```bash
+python scripts/audit_results.py --check
+```
 
 Key Figures
 
