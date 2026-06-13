@@ -138,11 +138,15 @@ SLOPE_SPECS = (
 FIGURE_SPECS = (
     FigureSpec("data/plots_test500/steer_shift_layer12.png"),
     FigureSpec("data/plots_tokenloc_test500/steer_shift_layer12_final.png"),
-    FigureSpec("data/plots_inencoder_rms_test200_goalcontext/steer_shift_layer12_block.png"),
+    FigureSpec(
+        "data/plots_inencoder_rms_test200_goalcontext/steer_shift_layer12_block.png"
+    ),
 )
 
 
-def check_close(name: str, actual: float, expected: float, tolerance: float) -> dict[str, Any]:
+def check_close(
+    name: str, actual: float, expected: float, tolerance: float
+) -> dict[str, Any]:
     delta = abs(actual - expected)
     return {
         "name": name,
@@ -224,7 +228,9 @@ def find_result(
     )
 
 
-def slope_from_mean_shift(artifact: dict[str, Any], bootstrap_row: dict[str, Any]) -> float:
+def slope_from_mean_shift(
+    artifact: dict[str, Any], bootstrap_row: dict[str, Any]
+) -> float:
     alpha_pos = float(bootstrap_row["alpha_pos"])
     alpha_neg = float(bootstrap_row["alpha_neg"])
     common = {
@@ -235,7 +241,9 @@ def slope_from_mean_shift(artifact: dict[str, Any], bootstrap_row: dict[str, Any
     }
     row_pos = find_result(artifact, alpha=alpha_pos, **common)
     row_neg = find_result(artifact, alpha=alpha_neg, **common)
-    return (float(row_pos["mean_shift"]) - float(row_neg["mean_shift"])) / (alpha_pos - alpha_neg)
+    return (float(row_pos["mean_shift"]) - float(row_neg["mean_shift"])) / (
+        alpha_pos - alpha_neg
+    )
 
 
 def png_digest(repo_root: Path, relative_path: str) -> tuple[int, str]:
@@ -277,7 +285,9 @@ def audit_repository(
                 )
             )
         except Exception as exc:
-            checks.append(check_condition(f"{spec.path} baseline accuracy", False, str(exc)))
+            checks.append(
+                check_condition(f"{spec.path} baseline accuracy", False, str(exc))
+            )
 
         try:
             row_counts = {int(row["n"]) for row in artifact["results"]}
@@ -296,7 +306,9 @@ def audit_repository(
     for spec in slope_specs:
         artifact = artifacts.get(spec.path)
         if artifact is None:
-            checks.append(check_condition(spec.name, False, f"{spec.path} was not loaded"))
+            checks.append(
+                check_condition(spec.name, False, f"{spec.path} was not loaded")
+            )
             continue
 
         try:
@@ -349,7 +361,9 @@ def audit_repository(
                 )
             )
         except Exception as exc:
-            checks.append(check_condition(f"{spec.name} mean-shift consistency", False, str(exc)))
+            checks.append(
+                check_condition(f"{spec.name} mean-shift consistency", False, str(exc))
+            )
 
     artifact = artifacts.get(control_artifact)
     if artifact is not None:
@@ -390,6 +404,128 @@ def audit_repository(
     return checks
 
 
+def summarize_artifact(repo_root: Path, relative_path: str) -> dict[str, Any]:
+    """Return compact, portfolio-friendly metrics for one steering artifact."""
+    artifact = load_artifact(repo_root, relative_path)
+    results = artifact["results"]
+    bootstrap = artifact["bootstrap"]
+
+    n_values = sorted({int(row["n"]) for row in results if "n" in row})
+    alphas = sorted({float(row["alpha"]) for row in results if "alpha" in row})
+    signal_rows = [row for row in bootstrap if row.get("direction") == "u"]
+    control_rows = [row for row in bootstrap if row.get("direction") != "u"]
+    signal_slopes = [_bootstrap_summary(row) for row in signal_rows]
+    control_slopes = [_bootstrap_summary(row) for row in control_rows]
+    max_signal = _max_abs(row["slope"] for row in signal_slopes)
+    max_control = _max_abs(row["slope"] for row in control_slopes)
+
+    return {
+        "path": relative_path,
+        "baseline_accuracy": float(artifact["config"].get("baseline_accuracy", 0.0)),
+        "n_values": n_values,
+        "layers": sorted({int(row["layer"]) for row in results if "layer" in row}),
+        "masks": sorted({str(row["mask"]) for row in results if "mask" in row}),
+        "injections": sorted(
+            {str(row["injection"]) for row in results if "injection" in row}
+        ),
+        "alpha_min": min(alphas) if alphas else None,
+        "alpha_max": max(alphas) if alphas else None,
+        "signal_slopes": signal_slopes,
+        "control_slopes": control_slopes,
+        "max_abs_signal_slope": max_signal,
+        "max_abs_control_slope": max_control,
+        "signal_to_control_ratio": _ratio(max_signal, max_control),
+    }
+
+
+def build_metrics_summary(
+    repo_root: Path,
+    *,
+    artifact_specs: tuple[ArtifactSpec, ...] = ARTIFACT_SPECS,
+    slope_specs: tuple[SlopeSpec, ...] = SLOPE_SPECS,
+    figure_specs: tuple[FigureSpec, ...] = FIGURE_SPECS,
+) -> dict[str, Any]:
+    """Build an auditable metrics summary from committed artifacts."""
+    repo_root = repo_root.resolve()
+    artifacts = [summarize_artifact(repo_root, spec.path) for spec in artifact_specs]
+    figures = []
+    for spec in figure_specs:
+        size, digest = png_digest(repo_root, spec.path)
+        figures.append(
+            {
+                "path": spec.path,
+                "bytes": size,
+                "sha256": digest,
+                "min_bytes": spec.min_bytes,
+            }
+        )
+
+    checks = audit_repository(
+        repo_root,
+        artifact_specs=artifact_specs,
+        slope_specs=slope_specs,
+        figure_specs=figure_specs,
+    )
+    passed = sum(1 for check in checks if check["ok"])
+    return {
+        "repo_root": str(repo_root),
+        "artifacts": artifacts,
+        "figures": figures,
+        "audit_checks": {
+            "passed": passed,
+            "total": len(checks),
+            "failed": len(checks) - passed,
+        },
+    }
+
+
+def render_metrics_markdown(summary: dict[str, Any]) -> str:
+    lines = [
+        "# milean Artifact Metrics",
+        "",
+        f"- Audit checks: `{summary['audit_checks']['passed']}/{summary['audit_checks']['total']}` passed",
+        "",
+        "## Steering Artifacts",
+        "",
+        "| Artifact | N | Baseline | Signal slope | Max control | Signal/control |",
+        "|---|---:|---:|---:|---:|---:|",
+    ]
+    for artifact in summary["artifacts"]:
+        n_values = ",".join(str(n) for n in artifact["n_values"])
+        lines.append(
+            "| "
+            f"{artifact['path']} | {n_values} | "
+            f"{artifact['baseline_accuracy']:.3f} | "
+            f"{artifact['max_abs_signal_slope']:.3f} | "
+            f"{artifact['max_abs_control_slope']:.3f} | "
+            f"{_format_ratio(artifact['signal_to_control_ratio'])} |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Key Slopes",
+            "",
+            "| Artifact | Layer | Mask | Injection | Slope | 95% CI |",
+            "|---|---:|---|---|---:|---:|",
+        ]
+    )
+    for artifact in summary["artifacts"]:
+        for row in artifact["signal_slopes"]:
+            ci = _format_ci(row.get("ci_low"), row.get("ci_high"))
+            lines.append(
+                f"| {artifact['path']} | {row['layer']} | {row['mask']} | "
+                f"{row['injection']} | {row['slope']:.3f} | {ci} |"
+            )
+
+    lines.extend(
+        ["", "## Figures", "", "| Figure | Bytes | SHA256 |", "|---|---:|---|"]
+    )
+    for figure in summary["figures"]:
+        lines.append(f"| {figure['path']} | {figure['bytes']} | `{figure['sha256']}` |")
+    return "\n".join(lines) + "\n"
+
+
 def render_report(checks: list[dict[str, Any]]) -> str:
     passed = sum(1 for check in checks if check["ok"])
     total = len(checks)
@@ -401,7 +537,9 @@ def render_report(checks: list[dict[str, Any]]) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Audit committed milean result artifacts.")
+    parser = argparse.ArgumentParser(
+        description="Audit committed milean result artifacts."
+    )
     parser.add_argument("--repo-root", type=Path, default=REPO_ROOT)
     parser.add_argument(
         "--summary-out",
@@ -413,6 +551,18 @@ def main(argv: list[str] | None = None) -> int:
         "--check",
         action="store_true",
         help="Exit nonzero when any audit check fails.",
+    )
+    parser.add_argument(
+        "--metrics-json",
+        type=Path,
+        default=None,
+        help="Optional path for a JSON artifact metrics summary.",
+    )
+    parser.add_argument(
+        "--metrics-md",
+        type=Path,
+        default=None,
+        help="Optional path for a Markdown artifact metrics summary.",
     )
     args = parser.parse_args(argv)
 
@@ -426,9 +576,67 @@ def main(argv: list[str] | None = None) -> int:
             encoding="utf-8",
         )
 
+    if args.metrics_json is not None or args.metrics_md is not None:
+        metrics = build_metrics_summary(args.repo_root)
+        if args.metrics_json is not None:
+            args.metrics_json.parent.mkdir(parents=True, exist_ok=True)
+            args.metrics_json.write_text(
+                json.dumps(metrics, indent=2, allow_nan=False) + "\n",
+                encoding="utf-8",
+            )
+        if args.metrics_md is not None:
+            args.metrics_md.parent.mkdir(parents=True, exist_ok=True)
+            args.metrics_md.write_text(
+                render_metrics_markdown(metrics), encoding="utf-8"
+            )
+
     if args.check and any(not check["ok"] for check in checks):
         return 1
     return 0
+
+
+def _bootstrap_summary(row: dict[str, Any]) -> dict[str, Any]:
+    summary = {
+        "layer": int(row["layer"]),
+        "direction": str(row["direction"]),
+        "mask": str(row["mask"]),
+        "injection": str(row["injection"]),
+        "alpha_neg": float(row["alpha_neg"]),
+        "alpha_pos": float(row["alpha_pos"]),
+        "slope": float(row["slope"]),
+    }
+    if "ci_low" in row:
+        summary["ci_low"] = float(row["ci_low"])
+    if "ci_high" in row:
+        summary["ci_high"] = float(row["ci_high"])
+    if "reps" in row:
+        summary["reps"] = int(row["reps"])
+    return summary
+
+
+def _max_abs(values: Any) -> float:
+    values = [abs(float(value)) for value in values]
+    return max(values) if values else 0.0
+
+
+def _ratio(numerator: float, denominator: float) -> float | None:
+    if denominator == 0:
+        return None if numerator > 0 else 0.0
+    return numerator / denominator
+
+
+def _format_ratio(value: Any) -> str:
+    if value is None:
+        return "inf"
+    if not isinstance(value, (int, float)):
+        return "-"
+    return f"{value:.2f}"
+
+
+def _format_ci(low: Any, high: Any) -> str:
+    if isinstance(low, (int, float)) and isinstance(high, (int, float)):
+        return f"[{low:.3f}, {high:.3f}]"
+    return "-"
 
 
 if __name__ == "__main__":

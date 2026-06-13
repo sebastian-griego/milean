@@ -14,7 +14,10 @@ from scripts.audit_results import (  # noqa: E402
     FigureSpec,
     SlopeSpec,
     audit_repository,
+    build_metrics_summary,
     find_bootstrap,
+    render_metrics_markdown,
+    summarize_artifact,
     slope_from_mean_shift,
 )
 
@@ -90,7 +93,9 @@ def artifact() -> dict:
 class AuditResultsTest(unittest.TestCase):
     def test_slope_from_mean_shift_matches_bootstrap_key(self) -> None:
         data = artifact()
-        row = find_bootstrap(data, layer=3, direction="u", mask="global", injection="final")
+        row = find_bootstrap(
+            data, layer=3, direction="u", mask="global", injection="final"
+        )
 
         self.assertEqual(slope_from_mean_shift(data, row), 6.0)
 
@@ -109,7 +114,9 @@ class AuditResultsTest(unittest.TestCase):
             checks = audit_repository(
                 root,
                 artifact_specs=(
-                    ArtifactSpec("data/fixture.json", expected_baseline=0.75, expected_n=4),
+                    ArtifactSpec(
+                        "data/fixture.json", expected_baseline=0.75, expected_n=4
+                    ),
                 ),
                 slope_specs=(
                     SlopeSpec(
@@ -142,7 +149,9 @@ class AuditResultsTest(unittest.TestCase):
             checks = audit_repository(
                 root,
                 artifact_specs=(
-                    ArtifactSpec("data/fixture.json", expected_baseline=0.75, expected_n=4),
+                    ArtifactSpec(
+                        "data/fixture.json", expected_baseline=0.75, expected_n=4
+                    ),
                 ),
                 slope_specs=(),
                 figure_specs=(),
@@ -153,6 +162,48 @@ class AuditResultsTest(unittest.TestCase):
             failures = [check for check in checks if not check["ok"]]
             self.assertEqual(len(failures), 1)
             self.assertIn("control slope", failures[0]["name"])
+
+    def test_metrics_summary_extracts_signal_control_ratio_and_figures(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            data_dir = root / "data"
+            data_dir.mkdir()
+            (data_dir / "fixture.json").write_text(
+                json.dumps(artifact()),
+                encoding="utf-8",
+            )
+            figure = data_dir / "figure.png"
+            figure.write_bytes(b"\x89PNG\r\n\x1a\n" + b"x" * 16)
+
+            artifact_summary = summarize_artifact(root, "data/fixture.json")
+            self.assertEqual(artifact_summary["n_values"], [4])
+            self.assertEqual(artifact_summary["max_abs_signal_slope"], 6.0)
+            self.assertEqual(artifact_summary["max_abs_control_slope"], 0.4)
+            self.assertAlmostEqual(artifact_summary["signal_to_control_ratio"], 15.0)
+
+            summary = build_metrics_summary(
+                root,
+                artifact_specs=(
+                    ArtifactSpec(
+                        "data/fixture.json", expected_baseline=0.75, expected_n=4
+                    ),
+                ),
+                slope_specs=(
+                    SlopeSpec(
+                        name="fixture slope",
+                        path="data/fixture.json",
+                        layer=3,
+                        mask="global",
+                        expected_slope=6.0,
+                    ),
+                ),
+                figure_specs=(FigureSpec("data/figure.png", min_bytes=8),),
+            )
+            markdown = render_metrics_markdown(summary)
+            self.assertEqual(summary["audit_checks"]["failed"], 0)
+            self.assertIn("milean Artifact Metrics", markdown)
+            self.assertIn("data/fixture.json", markdown)
+            self.assertIn("data/figure.png", markdown)
 
 
 if __name__ == "__main__":

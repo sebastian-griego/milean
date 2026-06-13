@@ -26,6 +26,7 @@ Audit the committed artifacts locally:
 
 ```bash
 python scripts/audit_results.py --check
+python scripts/audit_results.py --metrics-json data/artifact_metrics.json --metrics-md data/artifact_metrics.md
 ```
 
 Key Figures

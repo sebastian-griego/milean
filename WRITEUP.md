@@ -15,7 +15,7 @@ This repo contains a focused mechanistic interpretability study of the Lean 4 ta
 
 Controls (random, shuffled labels, within-class split) stayed near zero across the dense sweep.
 
-The committed artifacts behind these numbers are checked by `python scripts/audit_results.py --check`. The audit validates the tracked JSON summaries, recomputes the reported slopes from the +/-0.25 alpha rows, bounds the control slopes, checks sample counts, and verifies that the referenced PNG figures are present.
+The committed artifacts behind these numbers are checked by `python scripts/audit_results.py --check`. The audit validates the tracked JSON summaries, recomputes the reported slopes from the +/-0.25 alpha rows, bounds the control slopes, checks sample counts, and verifies that the referenced PNG figures are present. It can also export a compact JSON/Markdown metrics summary with signal/control ratios and figure hashes via `--metrics-json` and `--metrics-md`.
 
 ## Figures
 
